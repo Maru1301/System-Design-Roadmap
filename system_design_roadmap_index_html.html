@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maru Lin｜System Design Learning Roadmap</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-soft: #1f2937;
+      --card: #020617;
+      --card-border: #334155;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --warning: #f59e0b;
+      --danger: #fb7185;
+      --line: #475569;
+      --shadow: rgba(0, 0, 0, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), transparent 34%), var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .app-shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px 20px 80px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
+      gap: 20px;
+      align-items: stretch;
+      margin-bottom: 20px;
+    }
+
+    .hero-card,
+    .stats-card,
+    .toolbar,
+    .roadmap-card,
+    .side-card {
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      background: rgba(15, 23, 42, 0.86);
+      box-shadow: 0 18px 60px var(--shadow);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+    }
+
+    .hero-card {
+      padding: 32px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #bae6fd;
+      background: rgba(14, 165, 233, 0.13);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(32px, 5vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -0.06em;
+    }
+
+    .hero-card p {
+      max-width: 840px;
+      color: var(--muted);
+      font-size: 17px;
+      margin: 0;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    button,
+    .button-like {
+      border: 0;
+      cursor: pointer;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-weight: 800;
+      color: var(--text);
+      background: #1e293b;
+      transition: 0.18s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover,
+    .button-like:hover {
+      transform: translateY(-1px);
+      background: #334155;
+    }
+
+    button.primary {
+      color: #082f49;
+      background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+    }
+
+    button.success {
+      color: #052e16;
+      background: linear-gradient(135deg, #86efac, #22c55e);
+    }
+
+    .stats-card {
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+      align-content: center;
+    }
+
+    .progress-wrap {
+      display: grid;
+      gap: 10px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 14px;
+      border-radius: 999px;
+      background: #020617;
+      overflow: hidden;
+      border: 1px solid #334155;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #38bdf8, #22c55e);
+      transition: width 0.3s ease;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: rgba(15, 23, 42, 0.84);
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 12px;
+      z-index: 20;
+      padding: 14px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search {
+      flex: 1 1 260px;
+      min-width: 220px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(2, 6, 23, 0.76);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 0 12px;
+    }
+
+    .search input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      color: var(--text);
+      background: transparent;
+      padding: 12px 0;
+      font-size: 15px;
+    }
+
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .chip.active {
+      color: #082f49;
+      background: #7dd3fc;
+      border-color: #7dd3fc;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 20px;
+    }
+
+    .roadmap {
+      display: grid;
+      gap: 18px;
+    }
+
+    .phase {
+      position: relative;
+      padding-left: 26px;
+    }
+
+    .phase::before {
+      content: "";
+      position: absolute;
+      top: 40px;
+      left: 11px;
+      width: 2px;
+      height: calc(100% - 24px);
+      background: linear-gradient(var(--line), rgba(71, 85, 105, 0));
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .phase-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: #020617;
+      background: var(--accent);
+      box-shadow: 0 0 0 8px rgba(56, 189, 248, 0.12);
+      font-weight: 900;
+      z-index: 2;
+      flex: none;
+    }
+
+    .phase-title {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+
+    .phase-meta {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .node-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .roadmap-card {
+      position: relative;
+      padding: 16px;
+      transition: 0.2s ease;
+      overflow: hidden;
+    }
+
+    .roadmap-card:hover {
+      border-color: rgba(125, 211, 252, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .roadmap-card.done {
+      border-color: rgba(34, 197, 94, 0.72);
+      background: linear-gradient(145deg, rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.88));
+    }
+
+    .node-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .node-title {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .node-level {
+      white-space: nowrap;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #cbd5e1;
+      background: rgba(51, 65, 85, 0.8);
+      border: 1px solid #475569;
+      font-weight: 900;
+    }
+
+    .node-summary {
+      color: var(--muted);
+      margin: 10px 0 14px;
+      font-size: 14px;
+    }
+
+    .node-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      background: rgba(14, 165, 233, 0.10);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    details {
+      border-top: 1px solid rgba(148, 163, 184, 0.18);
+      padding-top: 10px;
+    }
+
+    summary {
+      cursor: pointer;
+      color: #e0f2fe;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .detail-list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: #cbd5e1;
+      font-size: 13px;
+    }
+
+    .detail-list li {
+      margin: 6px 0;
+    }
+
+    .node-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .check-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      user-select: none;
+    }
+
+    .check-label input {
+      width: 18px;
+      height: 18px;
+      accent-color: #22c55e;
+    }
+
+    .side {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      position: sticky;
+      top: 96px;
+      height: fit-content;
+    }
+
+    .side-card {
+      padding: 18px;
+    }
+
+    .side-card h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    .side-card p,
+    .side-card li {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .side-card ol,
+    .side-card ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .footer {
+      margin-top: 40px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1024px) {
+      .hero,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        position: static;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .hero-card {
+        padding: 22px;
+      }
+
+      .node-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        position: static;
+      }
+
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <div class="hero-card">
+        <span class="eyebrow">Backend Engineer → System Design Engineer</span>
+        <h1>現代系統設計自學 Roadmap</h1>
+        <p>
+          這份 roadmap 以 .NET Backend、Azure、AKS、Payment API、Observability 與 AI System Design 為主軸，目標不是背元件，而是建立能在面試與實務中說清楚 trade-off 的架構決策能力。
+        </p>
+        <div class="hero-actions">
+          <button class="primary" onclick="expandAll()">展開全部節點</button>
+          <button onclick="collapseAll()">收合全部節點</button>
+          <button class="success" onclick="focusRecommended()">建議先學路線</button>
+        </div>
+      </div>
+
+      <aside class="stats-card">
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>完成進度</span>
+            <span id="progressText">0 / 0</span>
+          </div>
+          <div class="progress-track">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><strong id="totalCount">0</strong><span>學習節點</span></div>
+          <div class="stat"><strong>6</strong><span>學習階段</span></div>
+          <div class="stat"><strong>12w</strong><span>建議週期</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="toolbar">
+      <label class="search" aria-label="搜尋 roadmap">
+        <span>⌕</span>
+        <input id="searchInput" type="search" placeholder="搜尋：cache、payment、RAG、AKS、observability..." />
+      </label>
+      <div class="chip-group" id="filters">
+        <button class="chip active" data-filter="all">全部</button>
+        <button class="chip" data-filter="foundation">基礎</button>
+        <button class="chip" data-filter="distributed">分散式</button>
+        <button class="chip" data-filter="backend">後端實戰</button>
+        <button class="chip" data-filter="cloud">Cloud / DevOps</button>
+        <button class="chip" data-filter="ai">AI 系統</button>
+        <button class="chip" data-filter="interview">面試輸出</button>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="roadmap" id="roadmap">
+        <!-- Phase 1 -->
+        <section class="phase" data-phase="foundation">
+          <div class="phase-header">
+            <div class="phase-dot">1</div>
+            <div>
+              <h2 class="phase-title">System Design 思考框架</h2>
+              <div class="phase-meta">第 1–2 週｜先學會怎麼拆問題，而不是急著畫架構圖</div>
+            </div>
+          </div>
+          <div class="node-grid">
+            <article class="roadmap-card" data-category="foundation interview" data-keywords="requirement clarification functional non-functional requirements SLA SLO capacity estimation">
+              <div class="node-top"><h3 class="node-title">需求釐清與 NFR</h3><span class="node-level">必修</span></div>
+              <p class="node-summary">把題目拆成功能需求、非功能需求、限制條件與成功指標。</p>
+              <div class="node-tags"><span class="tag">NFR</span><span class="tag">SLA/SLO</span><span class="tag">Scope</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>每個設計題先問：user 是誰？核心操作是什麼？讀寫比例？資料保存多久？</li><li>練習：設計購物車、付款、通知系統時各列出 5 個 NFR。</li><li>輸出：一頁 System Design Clarification Template。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="nfr" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="foundation interview" data-keywords="capacity estimation qps throughput storage bandwidth peak traffic">
+              <div class="node-top"><h3 class="node-title">容量估算與流量模型</h3><span class="node-level">必修</span></div>
+              <p class="node-summary">用粗估數字推導 QPS、storage、bandwidth、hot path 與 bottleneck。</p>
+              <div class="node-tags"><span class="tag">QPS</span><span class="tag">Storage</span><span class="tag">Peak</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>學會 MAU/DAU、read/write ratio、payload size、replication factor 的估算。</li><li>練習：估算 100 萬會員電商平台購物車與訂單服務。</li><li>輸出：Capacity Estimation Cheat Sheet。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="capacity" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="foundation interview" data-keywords="tradeoff latency throughput consistency availability cost complexity">
+              <div class="node-top"><h3 class="node-title">Trade-off Thinking</h3><span class="node-level">核心</span></div>
+              <p class="node-summary">架構不是選最潮的技術，而是在 latency、consistency、cost、complexity 間做取捨。</p>
+              <div class="node-tags"><span class="tag">Latency</span><span class="tag">Cost</span><span class="tag">Complexity</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>每次選型都回答：為什麼不用另一個方案？失敗模式是什麼？</li><li>練習：Redis vs DB、Queue vs Sync API、SQL vs NoSQL。</li><li>輸出：ADR 範本。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="tradeoff" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="foundation backend" data-keywords="api design rest grpc idempotency pagination contract versioning">
+              <div class="node-top"><h3 class="node-title">API Contract Design</h3><span class="node-level">必修</span></div>
+              <p class="node-summary">設計穩定、可演進、可重試、可觀測的 API contract。</p>
+              <div class="node-tags"><span class="tag">REST</span><span class="tag">gRPC</span><span class="tag">Versioning</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>學會 pagination、filtering、idempotency key、error code、correlation id。</li><li>練習：設計 Payment Create / Confirm / Refund API。</li><li>輸出：OpenAPI Spec + API Review Checklist。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="api-contract" />完成</label></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Phase 2 -->
+        <section class="phase" data-phase="distributed">
+          <div class="phase-header">
+            <div class="phase-dot">2</div>
+            <div>
+              <h2 class="phase-title">分散式系統基本元件</h2>
+              <div class="phase-meta">第 3–4 週｜建立大型系統常見元件地圖</div>
+            </div>
+          </div>
+          <div class="node-grid">
+            <article class="roadmap-card" data-category="distributed cloud" data-keywords="load balancer reverse proxy nginx layer 4 layer 7 gateway ingress">
+              <div class="node-top"><h3 class="node-title">Load Balancer / Gateway / Ingress</h3><span class="node-level">必修</span></div>
+              <p class="node-summary">理解 L4/L7、reverse proxy、API gateway 與 Kubernetes Ingress 的定位差異。</p>
+              <div class="node-tags"><span class="tag">L4/L7</span><span class="tag">Gateway</span><span class="tag">Ingress</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>比較 Azure Application Gateway、NGINX Ingress、API Gateway。</li><li>練習：設計多服務入口與 auth/rate limit。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="lb-gateway" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="distributed backend" data-keywords="cache redis cache aside write through ttl invalidation stampede">
+              <div class="node-top"><h3 class="node-title">Caching Strategy</h3><span class="node-level">核心</span></div>
+              <p class="node-summary">掌握 cache-aside、TTL、invalidation、cache stampede 與一致性問題。</p>
+              <div class="node-tags"><span class="tag">Redis</span><span class="tag">TTL</span><span class="tag">Invalidation</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>何時 cache？cache key 怎麼設計？資料過期怎麼處理？</li><li>練習：設計商品詳情頁、優惠券可用性、會員資料 cache。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="cache" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="distributed backend" data-keywords="message queue kafka rabbitmq azure service bus event driven pubsub retry dead letter">
+              <div class="node-top"><h3 class="node-title">Message Queue / Event Driven</h3><span class="node-level">核心</span></div>
+              <p class="node-summary">用 async processing 解耦服務、削峰填谷，並處理 retry、DLQ、順序性與重複消費。</p>
+              <div class="node-tags"><span class="tag">Kafka</span><span class="tag">Service Bus</span><span class="tag">DLQ</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>區分 command、event、message、notification。</li><li>練習：付款成功後發票、通知、庫存扣減流程。</li><li>輸出：Outbox Pattern 筆記。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="queue" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="distributed backend" data-keywords="consistency cap theorem eventual consistency transaction distributed transaction saga outbox">
+              <div class="node-top"><h3 class="node-title">Consistency / CAP / Saga</h3><span class="node-level">核心</span></div>
+              <p class="node-summary">理解強一致、最終一致、分散式交易、Saga 與補償交易。</p>
+              <div class="node-tags"><span class="tag">CAP</span><span class="tag">Saga</span><span class="tag">Outbox</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>什麼資料一定要強一致？什麼可以 eventual consistency？</li><li>練習：設計付款、訂單、庫存跨服務一致性。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="consistency" />完成</label></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Phase 3 -->
+        <section class="phase" data-phase="backend">
+          <div class="phase-header">
+            <div class="phase-dot">3</div>
+            <div>
+              <h2 class="phase-title">Backend Production Patterns</h2>
+              <div class="phase-meta">第 5–6 週｜從功能開發進化到 production-ready API</div>
+            </div>
+          </div>
+          <div class="node-grid">
+            <article class="roadmap-card" data-category="backend distributed" data-keywords="idempotency payment retry duplicate request exactly once at least once">
+              <div class="node-top"><h3 class="node-title">Idempotency & Retry Safety</h3><span class="node-level">核心</span></div>
+              <p class="node-summary">付款、下單、退款這類 API 必須能安全重試，避免重複扣款或重複建立訂單。</p>
+              <div class="node-tags"><span class="tag">Payment</span><span class="tag">Retry</span><span class="tag">Idempotency Key</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>設計 idempotency key 儲存、狀態機、過期策略。</li><li>練習：CreatePayment API 重送 3 次時仍只建立一筆交易。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="idempotency" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="backend distributed" data-keywords="rate limiting throttling token bucket leaky bucket abuse prevention quota">
+              <div class="node-top"><h3 class="node-title">Rate Limiting / Backpressure</h3><span class="node-level">必修</span></div>
+              <p class="node-summary">保護系統不被突發流量、錯誤重試、惡意請求拖垮。</p>
+              <div class="node-tags"><span class="tag">Token Bucket</span><span class="tag">Quota</span><span class="tag">429</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>比較 fixed window、sliding window、token bucket。</li><li>練習：設計 Partner API 的 per-client quota。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="rate-limit" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="backend" data-keywords="database indexing transaction isolation sql nosql sharding replication read replica">
+              <div class="node-top"><h3 class="node-title">Database Scaling</h3><span class="node-level">核心</span></div>
+              <p class="node-summary">從 index、transaction isolation、read replica 到 sharding，理解資料層瓶頸。</p>
+              <div class="node-tags"><span class="tag">Index</span><span class="tag">Replica</span><span class="tag">Sharding</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>練習 explain plan、hot partition、read/write split。</li><li>設計：訂單表、付款表、交易紀錄表的查詢模式。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="db-scaling" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="backend cloud" data-keywords="observability logging metrics tracing opentelemetry elk application insights correlation id">
+              <div class="node-top"><h3 class="node-title">Observability</h3><span class="node-level">核心</span></div>
+              <p class="node-summary">用 logs、metrics、traces 找出錯誤、慢查詢、跨服務瓶頸與使用者影響範圍。</p>
+              <div class="node-tags"><span class="tag">ELK</span><span class="tag">App Insights</span><span class="tag">Tracing</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>建立 correlation id、structured logging、distributed tracing。</li><li>練習：付款 API timeout 的 troubleshooting flow。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="observability" />完成</label></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Phase 4 -->
+        <section class="phase" data-phase="cloud">
+          <div class="phase-header">
+            <div class="phase-dot">4</div>
+            <div>
+              <h2 class="phase-title">Cloud Native / Azure / AKS</h2>
+              <div class="phase-meta">第 7–8 週｜把系統設計落到部署、擴展與維運</div>
+            </div>
+          </div>
+          <div class="node-grid">
+            <article class="roadmap-card" data-category="cloud backend" data-keywords="docker kubernetes aks pod deployment service ingress hpa readiness liveness">
+              <div class="node-top"><h3 class="node-title">AKS Runtime Model</h3><span class="node-level">必修</span></div>
+              <p class="node-summary">理解 Pod、Deployment、Service、Ingress、HPA、Probe 如何影響可用性。</p>
+              <div class="node-tags"><span class="tag">AKS</span><span class="tag">HPA</span><span class="tag">Probe</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>設計 API 的 readiness/liveness/startup probe。</li><li>練習：滾動部署期間如何避免流量打到未 ready 的 pod。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="aks-runtime" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="cloud" data-keywords="ci cd azure devops pipeline blue green canary rollback deployment strategy">
+              <div class="node-top"><h3 class="node-title">CI/CD 與部署策略</h3><span class="node-level">必修</span></div>
+              <p class="node-summary">從 build/test/push/deploy 到 blue-green、canary、rollback 與 release gate。</p>
+              <div class="node-tags"><span class="tag">Azure DevOps</span><span class="tag">Canary</span><span class="tag">Rollback</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>設計 SIT/UAT/Prod pipeline 與環境設定管理。</li><li>輸出：你的實務 CI/CD 架構圖。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="cicd" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="cloud distributed" data-keywords="resilience circuit breaker timeout retry bulkhead fallback polly disaster recovery">
+              <div class="node-top"><h3 class="node-title">Resilience Patterns</h3><span class="node-level">核心</span></div>
+              <p class="node-summary">用 timeout、retry、circuit breaker、bulkhead、fallback 控制故障擴散。</p>
+              <div class="node-tags"><span class="tag">Polly</span><span class="tag">Circuit Breaker</span><span class="tag">Timeout</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>避免 retry storm，區分 transient failure 與 permanent failure。</li><li>練習：第三方金流 API 不穩時如何保護主系統。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="resilience" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="cloud interview" data-keywords="cost optimization cloud cost autoscaling reserved instance resource limit request kubernetes">
+              <div class="node-top"><h3 class="node-title">Cost & Capacity Governance</h3><span class="node-level">進階</span></div>
+              <p class="node-summary">大型系統不只要能跑，還要能控制成本、容量與資源浪費。</p>
+              <div class="node-tags"><span class="tag">Cost</span><span class="tag">Autoscaling</span><span class="tag">Limits</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>理解 request/limit、autoscaling、預留容量、尖峰策略。</li><li>練習：促銷活動期間如何擴容又不過度浪費。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="cost" />完成</label></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Phase 5 -->
+        <section class="phase" data-phase="ai">
+          <div class="phase-header">
+            <div class="phase-dot">5</div>
+            <div>
+              <h2 class="phase-title">AI System Design</h2>
+              <div class="phase-meta">第 9–10 週｜把傳統後端能力延伸到 RAG / Agent / LLM Application</div>
+            </div>
+          </div>
+          <div class="node-grid">
+            <article class="roadmap-card" data-category="ai backend" data-keywords="rag retrieval augmented generation embedding vector database chunking reranking">
+              <div class="node-top"><h3 class="node-title">RAG Architecture</h3><span class="node-level">核心</span></div>
+              <p class="node-summary">理解 chunking、embedding、vector search、reranking、context assembly 與答案引用。</p>
+              <div class="node-tags"><span class="tag">RAG</span><span class="tag">Vector DB</span><span class="tag">Rerank</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>設計公司內部文件問答系統。</li><li>處理文件更新、權限、引用、幻覺與評測。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="rag" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="ai distributed" data-keywords="agent orchestration tool calling mcp skills workflow memory planning guardrails">
+              <div class="node-top"><h3 class="node-title">Agent / Tool Calling / MCP</h3><span class="node-level">進階</span></div>
+              <p class="node-summary">設計能安全使用工具、存取外部系統、拆解任務與回報狀態的 Agent workflow。</p>
+              <div class="node-tags"><span class="tag">Agent</span><span class="tag">MCP</span><span class="tag">Skills</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>區分 prompt、skill、tool、MCP server、workflow orchestration。</li><li>練習：設計可以讀 GitHub issue、產生 PR 摘要的 coding agent。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="agent" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="ai cloud" data-keywords="llm observability eval prompt versioning latency cost token monitoring abuse safety">
+              <div class="node-top"><h3 class="node-title">LLM Observability & Evaluation</h3><span class="node-level">進階</span></div>
+              <p class="node-summary">AI 系統需要追蹤 token、latency、cost、quality、prompt 版本與評測資料集。</p>
+              <div class="node-tags"><span class="tag">Eval</span><span class="tag">Token Cost</span><span class="tag">Prompt Version</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>設計 RAG answer quality dashboard。</li><li>比較人工評測、golden dataset、自動化 eval。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="llm-observability" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="ai backend" data-keywords="ai rate limit quota streaming async job queue inference cpu gpu memory context window">
+              <div class="node-top"><h3 class="node-title">AI Backend Scaling</h3><span class="node-level">進階</span></div>
+              <p class="node-summary">處理 streaming、長任務、token quota、併發限制、模型成本與推理資源瓶頸。</p>
+              <div class="node-tags"><span class="tag">Streaming</span><span class="tag">Quota</span><span class="tag">Inference</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>設計 AI Chat API 的 rate limit、queue、timeout 與 cancellation。</li><li>練習：多租戶 SaaS AI 功能的成本控管。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="ai-scaling" />完成</label></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Phase 6 -->
+        <section class="phase" data-phase="interview">
+          <div class="phase-header">
+            <div class="phase-dot">6</div>
+            <div>
+              <h2 class="phase-title">Design Practice & Interview Output</h2>
+              <div class="phase-meta">第 11–12 週｜把知識轉成面試與技術討論中的輸出能力</div>
+            </div>
+          </div>
+          <div class="node-grid">
+            <article class="roadmap-card" data-category="interview backend" data-keywords="url shortener classic system design api database cache scale">
+              <div class="node-top"><h3 class="node-title">Classic Design Drills</h3><span class="node-level">必修</span></div>
+              <p class="node-summary">練經典題：URL Shortener、Chat、Notification、File Upload、Search、Rate Limiter。</p>
+              <div class="node-tags"><span class="tag">Classic</span><span class="tag">Drill</span><span class="tag">Pattern</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>每題都用同一套框架：需求 → 估算 → API → data model → architecture → bottleneck → trade-off。</li><li>每題限制 45 分鐘口頭講完。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="classic-drills" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="interview backend" data-keywords="payment system order system coupon cart ecommerce omo b2b architecture">
+              <div class="node-top"><h3 class="node-title">Domain Design Drills：Payment / Cart / Coupon</h3><span class="node-level">核心</span></div>
+              <p class="node-summary">把你的實務背景包裝成高含金量的系統設計案例。</p>
+              <div class="node-tags"><span class="tag">Payment</span><span class="tag">Cart</span><span class="tag">Coupon</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>整理你做過的 payment API、購物車、B2B OMO 平台經驗。</li><li>輸出：一份可放履歷/面試講述的 architecture case study。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="domain-drills" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="interview cloud" data-keywords="architecture diagram c4 model sequence diagram deployment diagram adr">
+              <div class="node-top"><h3 class="node-title">Architecture Communication</h3><span class="node-level">必修</span></div>
+              <p class="node-summary">學會用 C4 Model、Sequence Diagram、Deployment Diagram 與 ADR 表達設計。</p>
+              <div class="node-tags"><span class="tag">C4</span><span class="tag">ADR</span><span class="tag">Diagram</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>每個案例輸出 Context、Container、Sequence、Failure Handling 圖。</li><li>練習：用 3 分鐘、10 分鐘、30 分鐘三種版本說明同一架構。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="architecture-communication" />完成</label></div>
+            </article>
+
+            <article class="roadmap-card" data-category="interview" data-keywords="portfolio github pages notes resume interview story senior engineer">
+              <div class="node-top"><h3 class="node-title">Portfolio & Review Loop</h3><span class="node-level">必修</span></div>
+              <p class="node-summary">把學習成果整理到 GitHub Pages，形成可展示的技術作品集。</p>
+              <div class="node-tags"><span class="tag">Portfolio</span><span class="tag">GitHub Pages</span><span class="tag">Review</span></div>
+              <details><summary>學習重點與練習</summary><ul class="detail-list"><li>每週完成一篇 architecture note。</li><li>每兩週錄一次 10 分鐘 system design 口說。</li><li>最後產出 3 個完整 case studies。</li></ul></details>
+              <div class="node-actions"><label class="check-label"><input type="checkbox" data-id="portfolio" />完成</label></div>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <aside class="side">
+        <div class="side-card">
+          <h3>建議使用方式</h3>
+          <ol>
+            <li>每週挑 2–3 個節點。</li>
+            <li>每個節點都產出一篇 Obsidian note。</li>
+            <li>每兩週完成一題完整 system design。</li>
+            <li>最後整理成 GitHub Pages portfolio。</li>
+          </ol>
+        </div>
+
+        <div class="side-card">
+          <h3>每題 System Design 模板</h3>
+          <ul>
+            <li>Requirements / NFR</li>
+            <li>Capacity Estimation</li>
+            <li>API Design</li>
+            <li>Data Model</li>
+            <li>High-level Architecture</li>
+            <li>Bottlenecks</li>
+            <li>Failure Handling</li>
+            <li>Trade-offs</li>
+          </ul>
+        </div>
+
+        <div class="side-card">
+          <h3>優先學習路線</h3>
+          <p>先完成標記為「核心」與「必修」的節點。你的背景已經有 Azure / AKS / Payment，因此不要從語法開始，應直接練架構決策與 production trade-off。</p>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="footer">
+      Built for Maru Lin's System Design Learning Journey. Progress is saved locally in your browser.
+    </footer>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "maru-system-design-roadmap-progress-v1";
+    const cards = Array.from(document.querySelectorAll(".roadmap-card"));
+    const checks = Array.from(document.querySelectorAll("input[type='checkbox'][data-id]"));
+    const searchInput = document.getElementById("searchInput");
+    const filterButtons = Array.from(document.querySelectorAll(".chip[data-filter]"));
+    let activeFilter = "all";
+
+    function loadProgress() {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      checks.forEach(check => {
+        check.checked = Boolean(saved[check.dataset.id]);
+        updateCardDoneState(check);
+      });
+      updateProgress();
+    }
+
+    function saveProgress() {
+      const state = {};
+      checks.forEach(check => state[check.dataset.id] = check.checked);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateProgress();
+    }
+
+    function updateCardDoneState(check) {
+      const card = check.closest(".roadmap-card");
+      card.classList.toggle("done", check.checked);
+    }
+
+    function updateProgress() {
+      const total = checks.length;
+      const done = checks.filter(check => check.checked).length;
+      const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+      document.getElementById("progressText").textContent = `${done} / ${total} (${percent}%)`;
+      document.getElementById("progressBar").style.width = `${percent}%`;
+      document.getElementById("totalCount").textContent = total;
+    }
+
+    function applyFilters() {
+      const query = searchInput.value.trim().toLowerCase();
+      cards.forEach(card => {
+        const category = card.dataset.category || "";
+        const keywords = card.dataset.keywords || "";
+        const text = card.textContent.toLowerCase() + " " + keywords.toLowerCase();
+        const matchFilter = activeFilter === "all" || category.includes(activeFilter);
+        const matchSearch = !query || text.includes(query);
+        card.classList.toggle("hidden", !(matchFilter && matchSearch));
+      });
+
+      document.querySelectorAll(".phase").forEach(phase => {
+        const visibleCards = Array.from(phase.querySelectorAll(".roadmap-card")).some(card => !card.classList.contains("hidden"));
+        phase.classList.toggle("hidden", !visibleCards);
+      });
+    }
+
+    function expandAll() {
+      document.querySelectorAll("details").forEach(detail => detail.open = true);
+    }
+
+    function collapseAll() {
+      document.querySelectorAll("details").forEach(detail => detail.open = false);
+    }
+
+    function focusRecommended() {
+      activeFilter = "all";
+      filterButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.filter === "all"));
+      searchInput.value = "核心 必修";
+      applyFilters();
+      expandAll();
+      window.scrollTo({ top: document.querySelector(".toolbar").offsetTop - 10, behavior: "smooth" });
+    }
+
+    checks.forEach(check => {
+      check.addEventListener("change", () => {
+        updateCardDoneState(check);
+        saveProgress();
+      });
+    });
+
+    searchInput.addEventListener("input", applyFilters);
+
+    filterButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        filterButtons.forEach(btn => btn.classList.toggle("active", btn === button));
+        applyFilters();
+      });
+    });
+
+    loadProgress();
+  </script>
+</body>
+</html>
